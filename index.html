@@ -168,8 +168,10 @@
         }
     `;
 
+    let warpTooSlow = false;
     window.initWarpEffect = function(container, opts) {
-        if (!container || container._warpInitialized) return;
+        if (!container || container._warpInitialized || warpTooSlow ||
+            matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         container._warpInitialized = true;
 
         const speed = opts?.speed ?? 0.8;
@@ -209,7 +211,8 @@
         const canvas = document.createElement('canvas');
         canvas.className = 'warp-effect-canvas';
 
-        const gl = canvas.getContext('webgl2', { alpha: true, antialias: false, premultipliedAlpha: false });
+        const gl = canvas.getContext('webgl2', { alpha: true, antialias: false, premultipliedAlpha: false,
+            failIfMajorPerformanceCaveat: true });
         if (!gl) { container._warpInitialized = false; return; }
 
         // Noise texture
@@ -284,18 +287,35 @@
             const w = container.offsetWidth;
             const h = container.offsetHeight;
             if (w === 0 || h === 0) return;
-            canvas.width = w;
-            canvas.height = h;
-            gl.viewport(0, 0, w, h);
+            const scale = Math.min(0.6, Math.sqrt(100_000 / (w * h)));
+            canvas.width = Math.max(1, Math.floor(w * scale));
+            canvas.height = Math.max(1, Math.floor(h * scale));
+            gl.viewport(0, 0, canvas.width, canvas.height);
         }
         resize();
         window.addEventListener('resize', resize);
 
         container.appendChild(canvas);
 
-        let animId;
+        let animId, lastDraw = -Infinity, lastFrame, slowTime = 0;
         function update(timestamp) {
+            if (!container.isConnected || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                container._warpCleanup();
+                return;
+            }
+            const gap = lastFrame === undefined ? 0 : timestamp - lastFrame;
+            lastFrame = timestamp;
+            if (document.hidden || gap > 1000) slowTime = 0;
+            else if (gap > 42) slowTime += gap;
+            else slowTime = Math.max(0, slowTime - gap);
+            if (slowTime >= 1200) {
+                warpTooSlow = true;
+                container._warpCleanup();
+                return;
+            }
             animId = requestAnimationFrame(update);
+            if (document.hidden || timestamp - lastDraw < 1000 / 30) return;
+            lastDraw = timestamp;
             // wrap time modulo 1000 to prevent precision loss on mobile/Chromium
             const t = (timestamp * 0.001 * speed) % 1000.0;
             gl.uniform1f(uTime, t);
@@ -307,6 +327,11 @@
             cancelAnimationFrame(animId);
             window.removeEventListener('resize', resize);
             if (canvas.parentElement) canvas.parentElement.removeChild(canvas);
+            gl.deleteTexture(noiseTex);
+            gl.deleteBuffer(vbo);
+            gl.deleteProgram(program);
+            container._warpCleanup = null;
+            container._warpInitialized = false;
         };
     };
     </script>
@@ -2339,7 +2364,7 @@ oh/uZMozC65SmDw+N5p6Su8CAwEAAQ==
                                     speed: 0.8,
                                     proportion: 0.55,
                                     distortion: 0.12,
-                                    swirlIterations: 13,
+                                    swirlIterations: 7,
                                     shape: 1,
                                     softness: 0.8,
                                     swirl: 1.0,

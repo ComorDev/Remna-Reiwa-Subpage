@@ -1,22 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="color-mode-dark">
 <head>
     <meta charset="UTF-8">
-    <script>
-    (function() {
-        var pref = localStorage.getItem('colorMode');
-        var dark = pref === 'dark' || (pref !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.classList.add(dark ? 'color-mode-dark' : 'color-mode-light');
-    })();
-    </script>
     <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180x180.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#c4b5fd" id="themeColor" data-theme-light="#c4b5fd" data-theme-dark="#c084fc">
-    <script type="application/json" id="warpColorsLight">[[0.94, 0.90, 0.99],[0.62, 0.42, 0.92],[0.97, 0.95, 1.0],[0.52, 0.32, 0.82]]</script>
-    <script type="application/json" id="warpColorsDark">[[0.07, 0.07, 0.07],[0.58, 0.44, 1.0],[0.07, 0.07, 0.07],[0.53, 0.22, 1.0]]</script>
+    <meta name="theme-color" content="#303030">
+    <script type="application/json" id="warpColorsLight">[[0.96,0.96,0.96],[0.73,0.73,0.73],[1,1,1],[0.82,0.82,0.82]]</script>
+    <script type="application/json" id="warpColorsDark">[[0.18,0.18,0.18],[0.40,0.40,0.40],[0.24,0.24,0.24],[0.52,0.52,0.52]]</script>
     <meta name="description" content="<%= metaDescription %>" id="metaDesc">
     <title id="pageTitle"><%= metaTitle %></title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -828,7 +821,21 @@ body::before {
 .platform-tab:active { transform: scale(0.95); }
 .platform-tab.active { background: rgba(var(--primary-rgb), 0.15); color: var(--primary-color); }
 .platform-tab svg { color: inherit; }
-#platform-selector-btn { display: none; }
+#platform-selector-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-inline-start: auto;
+    border-radius: 8px;
+}
+#platform-selector-btn::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-inline-end: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+}
 
 /* App Cards Container */
 .apps-container { display: flex; flex-direction: column; gap: 20px; width: 100%; min-width: 0; box-sizing: border-box; }
@@ -943,7 +950,7 @@ body::before {
     color: var(--primary-color);
     position: absolute;
     top: 4px;
-    left: 4px;
+    right: 4px;
     width: 12px;
     height: 12px;
     z-index: 1;
@@ -957,12 +964,10 @@ body::before {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    order: 2;
     border-radius: calc(var(--radius) - 1px) 0 0 calc(var(--radius) - 1px);
 }
 .app-tab .app-tab-icon svg { width: 32px; height: 32px; }
 .app-tab .app-tab-name {
-    order: 1;
     padding: 12px 16px;
     display: flex;
     align-items: center;
@@ -985,34 +990,42 @@ body::before {
 }
 
 /* Installation Guides - Cards */
-.guides-cards { width: 100%; min-width: 0; box-sizing: border-box; }
+.guides-cards { width: 100%; min-width: 0; box-sizing: border-box; padding-top: 18px; }
 .guides-cards .guide-card {
-    background: var(--elevated-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--divider);
-    border-radius: var(--radius-item);
-    padding: 20px;
-    margin-bottom: 16px;
-    overflow: hidden;
+    position: relative;
+    padding: 0 0 30px 56px;
     word-break: break-word;
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
-    transition: border-color 0.2s ease;
 }
-.guide-card:hover { border-color: var(--border-hover); }
-.guides-cards .guide-card:last-child { margin-bottom: 0; }
+.guides-cards .guide-card:last-child { padding-bottom: 0; }
+.guides-cards .guide-card:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    top: 36px;
+    bottom: 0;
+    left: 17px;
+    width: 1px;
+    background: rgba(var(--primary-rgb), 0.45);
+}
 .guides-cards .guide-card-header {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 12px;
+    min-height: 24px;
+    margin-bottom: 4px;
 }
 .guides-cards .guide-card-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(var(--primary-rgb), 0.32);
+    background: rgba(var(--primary-rgb), 0.10);
+    color: var(--primary-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1020,8 +1033,17 @@ body::before {
 }
 .guides-cards .guide-card-icon svg { width: 20px; height: 20px; }
 .guides-cards .guide-card-title { font-weight: 600; font-size: 16px; }
-.guides-cards .guide-card-description { color: var(--text-secondary); margin-bottom: 16px; word-break: break-word; }
+.guides-cards .guide-card-description { color: var(--text-secondary); margin-bottom: 9px; word-break: break-word; }
 .guides-cards .guide-card-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.guides-cards .guide-card-buttons .btn-primary {
+    background: rgba(var(--primary-rgb), 0.14);
+    color: var(--primary-color);
+    border-color: transparent;
+    border-radius: 7px;
+}
+.guides-cards .guide-card-buttons .btn-primary:hover {
+    background: rgba(var(--primary-rgb), 0.24);
+}
 
 /* Installation Guides - Accordion */
 .guides-accordion { width: 100%; min-width: 0; box-sizing: border-box; }
@@ -1390,11 +1412,7 @@ body::before {
     .app-tabs { width: 100%; min-width: 0; box-sizing: border-box; }
 }
 
-/* Platform tabs breakpoint - show selector button instead of tabs on screens <= 1024px */
-@media (max-width: 1024px) {
-    .platform-tabs { display: none; }
-    #platform-selector-btn { display: inline-flex !important; }
-}
+.apps-section .platform-tabs { display: none; }
 
 /* Tab transitions */
 .platform-tab {
@@ -1423,6 +1441,31 @@ body::before {
 #mainContent.loaded { opacity: 1; }
 
 /* Snowflakes Animation */
+.holiday-lights {
+    position: fixed;
+    inset: 0 0 auto;
+    display: flex;
+    justify-content: space-around;
+    border-top: 1px solid #5c5143;
+    pointer-events: none;
+    z-index: 2;
+}
+.holiday-lights[hidden] { display: none; }
+.holiday-lights i {
+    width: 5px;
+    height: 8px;
+    border-radius: 0 0 50% 50%;
+    background: #ffe1a6;
+    box-shadow: 0 1px 8px #ffce7a88;
+    animation: holiday-glow 4.8s ease-in-out infinite alternate;
+}
+.holiday-lights i:nth-child(3n + 1) { animation-delay: -1.6s; }
+.holiday-lights i:nth-child(3n + 2) { animation-delay: -3.2s; }
+@keyframes holiday-glow { from { opacity: 0.45; } to { opacity: 0.95; } }
+@media (prefers-reduced-motion: reduce) {
+    .holiday-lights i { animation: none; }
+}
+.snowflake:nth-child(even) { display: none; }
 .snowflakes {
     position: fixed;
     top: 0;
@@ -1430,15 +1473,16 @@ body::before {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 9999;
+    z-index: 0;
     overflow: hidden;
 }
+@media (prefers-reduced-motion: reduce) { .snowflakes { display: none; } }
 .snowflake {
     position: absolute;
     top: -20px;
-    color: #a0c4e8;
+    color: #d7e3eb;
     font-size: 1em;
-    text-shadow: 0 0 8px rgba(var(--primary-rgb), 0.3);
+    text-shadow: none;
     animation: snowfall linear infinite;
     opacity: 0;
 }
@@ -1545,11 +1589,37 @@ body::before {
         box-shadow: 0 0 12px rgba(var(--primary-rgb), 0.15);
     }
 }
-    </style>
+/* Graphite background and teal accents */
+.color-mode-dark {
+    --primary-color: #40c5d2;
+    --primary-hover: #69d5df;
+    --primary-rgb: 64, 197, 210;
+    --info: var(--primary-color);
+    --bg-gradient-start: #383838;
+    --bg-gradient-mid: #303030;
+    --bg-gradient-end: #242424;
+    --bg-glow: rgba(180, 180, 180, 0.06);
+}
+.color-mode-light {
+    --primary-color: #006775;
+    --primary-hover: #005461;
+    --primary-text: #ffffff;
+    --primary-rgb: 0, 103, 117;
+    --info: var(--primary-color);
+    --bg-gradient-start: #ededed;
+    --bg-gradient-mid: #f6f6f6;
+    --bg-gradient-end: #ffffff;
+    --bg-glow: rgba(85, 85, 85, 0.08);
+}
+        </style>
 </head>
 <body>
     <!-- Snowflakes container for New Year mode -->
-    <div class="snowflakes" id="snowflakesContainer" style="display: none;">
+    <div class="holiday-lights" id="holidayLights" aria-hidden="true" hidden>
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <div class="snowflakes" id="snowflakesContainer" aria-hidden="true" hidden>
         <div class="snowflake">❄</div>
         <div class="snowflake">✦</div>
         <div class="snowflake">*</div>
@@ -1597,19 +1667,6 @@ body::before {
                 <button class="modal-close" onclick="closeModal('settingsModal')">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="settings-section">
-                    <div class="settings-toggle" id="snowToggleContainer" style="margin-top: 12px;">
-                        <div class="settings-toggle-label">
-                            <span>❄️</span>
-                            <span id="snowToggleLabel">New Year Mode</span>
-                        </div>
-                        <div class="toggle-switch" id="snowToggle" onclick="toggleSnowMode()"></div>
-                    </div>
-                </div>
-                <div class="settings-section">
-                    <label class="settings-label" id="appearanceLabel">Appearance</label>
-                    <div class="settings-buttons" id="colorModeButtons"></div>
-                </div>
                 <div class="settings-section">
                     <label class="settings-label" id="languageLabel">Language</label>
                     <div class="settings-buttons" id="languageButtons"></div>
@@ -1893,116 +1950,21 @@ oh/uZMozC65SmDw+N5p6Su8CAwEAAQ==
             loadPanelData();
         }
 
-        let colorModePreference = 'system';
-        let colorSchemeMediaQuery = null;
 
         function loadSettings() {
             const savedLang = localStorage.getItem('lang') || getBrowserLanguage();
             currentLanguage = savedLang;
-            initColorMode();
             initSnowMode();
         }
 
-        function getResolvedColorMode() {
-            if (colorModePreference === 'light') return 'light';
-            if (colorModePreference === 'dark') return 'dark';
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-
-        function applyColorMode() {
-            const resolved = getResolvedColorMode();
-            const root = document.documentElement;
-            root.classList.remove('color-mode-light', 'color-mode-dark');
-            root.classList.add(resolved === 'dark' ? 'color-mode-dark' : 'color-mode-light');
-            const meta = document.getElementById('themeColor');
-            if (meta) {
-                const darkMeta = meta.getAttribute('data-theme-dark');
-                const lightMeta = meta.getAttribute('data-theme-light');
-                if (darkMeta && lightMeta) {
-                    meta.setAttribute('content', resolved === 'dark' ? darkMeta : lightMeta);
-                }
-            }
-            refreshWarpEffectIfNeeded();
-        }
-
-        function initColorMode() {
-            const saved = localStorage.getItem('colorMode');
-            colorModePreference = (saved === 'light' || saved === 'dark') ? saved : 'system';
-            if (!colorSchemeMediaQuery) {
-                colorSchemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-                const onSchemeChange = () => {
-                    if (colorModePreference === 'system') applyColorMode();
-                };
-                if (colorSchemeMediaQuery.addEventListener) {
-                    colorSchemeMediaQuery.addEventListener('change', onSchemeChange);
-                } else if (colorSchemeMediaQuery.addListener) {
-                    colorSchemeMediaQuery.addListener(onSchemeChange);
-                }
-            }
-            applyColorMode();
-            setupColorModeButtons();
-        }
-
-        function setColorMode(mode) {
-            colorModePreference = mode;
-            if (mode === 'system') {
-                localStorage.removeItem('colorMode');
-            } else {
-                localStorage.setItem('colorMode', mode);
-            }
-            applyColorMode();
-            setupColorModeButtons();
-        }
-
-        function setupColorModeButtons() {
-            const container = document.getElementById('colorModeButtons');
-            if (!container) return;
-            const modes = [
-                { id: 'system', labelKey: 'colorModeSystem' },
-                { id: 'light', labelKey: 'colorModeLight' },
-                { id: 'dark', labelKey: 'colorModeDark' },
-            ];
-            container.innerHTML = modes.map(m => {
-                const active = colorModePreference === m.id ? ' btn-primary' : '';
-                return `<button type="button" class="btn${active}" data-color-mode="${m.id}">${getHardcodedText(m.labelKey)}</button>`;
-            }).join('');
-            container.querySelectorAll('[data-color-mode]').forEach(btn => {
-                btn.addEventListener('click', () => setColorMode(btn.getAttribute('data-color-mode')));
-            });
-        }
-
         function getWarpColors() {
-            const resolved = getResolvedColorMode();
-            const el = document.getElementById(resolved === 'dark' ? 'warpColorsDark' : 'warpColorsLight');
+            const el = document.getElementById('warpColorsDark');
             if (!el || !el.textContent.trim()) return null;
             try {
                 return JSON.parse(el.textContent.trim());
             } catch (e) {
                 return null;
             }
-        }
-
-        function refreshWarpEffectIfNeeded() {
-            const warpCard = document.getElementById('subscription-info-card');
-            if (!warpCard || typeof window.initWarpEffect !== 'function') return;
-            if (warpCard._warpCleanup) {
-                warpCard._warpCleanup();
-                warpCard._warpInitialized = false;
-            }
-            const colors = getWarpColors();
-            if (!colors) return;
-            window.initWarpEffect(warpCard, {
-                speed: 0.8,
-                proportion: 0.55,
-                distortion: 0.12,
-                swirlIterations: 13,
-                shape: 1,
-                softness: 0.8,
-                swirl: 1.0,
-                shapeScale: 0.05,
-                colors,
-            });
-            warpCard._warpInitialized = true;
         }
 
         function getBrowserLanguage() {
@@ -2313,53 +2275,15 @@ oh/uZMozC65SmDw+N5p6Su8CAwEAAQ==
             // Update settings modal labels
             document.getElementById('settingsTitle').textContent = getHardcodedText('settings');
             document.getElementById('languageLabel').textContent = getHardcodedText('language');
-            const appearanceLabel = document.getElementById('appearanceLabel');
-            if (appearanceLabel) appearanceLabel.textContent = getHardcodedText('appearance');
-            document.getElementById('snowToggleLabel').textContent = getHardcodedText('newYearMode');
-            setupColorModeButtons();
-        }
-
-        function isNewYearSeason() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth(); // 0-indexed
-            const day = now.getDate();
-            // Enable by default from Dec 1 to Jan 31
-            if (month === 11) return true; // December
-            if (month === 0 && day <= 31) return true; // Jan 1-31
-            return false;
         }
 
         function initSnowMode() {
-            const savedSnowMode = localStorage.getItem('snowMode');
-            let snowEnabled;
-            if (savedSnowMode !== null) {
-                snowEnabled = savedSnowMode === 'true';
-            } else {
-                snowEnabled = isNewYearSeason();
-            }
-            applySnowMode(snowEnabled);
+            const now = new Date();
+            const month = now.getMonth();
+            const inSeason = month === 11 || (month === 0 && now.getDate() <= 8);
+            document.getElementById('holidayLights').hidden = !inSeason;
+            document.getElementById('snowflakesContainer').hidden = !inSeason;
         }
-
-        function applySnowMode(enabled) {
-            const container = document.getElementById('snowflakesContainer');
-            const toggle = document.getElementById('snowToggle');
-            if (container) {
-                container.style.display = enabled ? 'block' : 'none';
-            }
-            if (toggle) {
-                toggle.classList.toggle('active', enabled);
-            }
-        }
-
-        function toggleSnowMode() {
-            const toggle = document.getElementById('snowToggle');
-            const isActive = toggle.classList.contains('active');
-            const newState = !isActive;
-            localStorage.setItem('snowMode', newState.toString());
-            applySnowMode(newState);
-        }
-
         function detectOS() {
             const ua = navigator.userAgent;
             const platform = navigator.platform;
@@ -2701,7 +2625,7 @@ oh/uZMozC65SmDw+N5p6Su8CAwEAAQ==
                 const starIcon = app.featured ? '<svg class="star-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' : '';
                 const iconHtml = appIcon ? `<span class="app-tab-icon">${appIcon}</span>` : '';
                 html += `<div class="app-tab ${index === timelineSelectedAppIndex ? 'active' : ''}" data-timeline-app-index="${index}" onclick="selectTimelineApp(${index})">
-                    ${starIcon}<span class="app-tab-name">${escapeHtml(app.name)}</span>${iconHtml}
+                    ${iconHtml}<span class="app-tab-name">${escapeHtml(app.name)}</span>${starIcon}
                 </div>`;
             });
             html += '</div></div></div>';
@@ -2784,7 +2708,7 @@ oh/uZMozC65SmDw+N5p6Su8CAwEAAQ==
                 const starIcon = app.featured ? '<svg class="star-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' : '';
                 const iconHtml = appIcon ? `<span class="app-tab-icon">${appIcon}</span>` : '';
                 html += `<div class="app-tab ${index === 0 ? 'active' : ''}" data-app-index="${index}">
-                    ${starIcon}<span class="app-tab-name">${escapeHtml(app.name)}</span>${iconHtml}
+                    ${iconHtml}<span class="app-tab-name">${escapeHtml(app.name)}</span>${starIcon}
                 </div>`;
             });
             html += '</div>';
@@ -2820,7 +2744,7 @@ oh/uZMozC65SmDw+N5p6Su8CAwEAAQ==
                 html += `
                     <div class="guide-card">
                         <div class="guide-card-header">
-                            <div class="guide-card-icon" style="background: var(--primary-color); color: var(--primary-text);">${icon}</div>
+                            <div class="guide-card-icon" aria-hidden="true">${icon}</div>
                             <div class="guide-card-title">${getLocalizedText(block.title)}</div>
                         </div>
                         <div class="guide-card-description">${getLocalizedText(block.description)}</div>
